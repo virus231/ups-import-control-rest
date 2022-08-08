@@ -1,0 +1,67 @@
+version: "3.4"
+
+services:
+  databank-dk:
+    container_name: databank-dk
+    image: mariadb:10
+    env_file:
+      - .env
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${DATA_BANK_DK_NAME}
+      - MYSQL_USER=${DATA_BANK_DK_USER}
+      - MYSQL_PASSWORD=${DATA_BANK_DK_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=adminroot
+    ports:
+      - "$DATA_BANK_DK_PORT:3306"
+    volumes:
+      - ./data/databank_dk:/var/lib/mysql
+
+  databank-us:
+    container_name: databank-us
+    image: mariadb:10
+    env_file:
+      - .env
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${DATA_BANK_US_NAME}
+      - MYSQL_USER=${DATA_BANK_US_USER}
+      - MYSQL_PASSWORD=${DATA_BANK_US_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=adminroot
+    ports:
+      - "$DATA_BANK_US_PORT:3306"
+    volumes:
+      - ./data/databank_us:/var/lib/mysql   
+
+  databank-se:
+    container_name: databank-se
+    image: mariadb:10
+    env_file:
+      - .env
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${DATA_BANK_SE_NAME}
+      - MYSQL_USER=${DATA_BANK_SE_USER}
+      - MYSQL_PASSWORD=${DATA_BANK_SE_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=adminroot
+    ports:
+      - "$DATA_BANK_SE_PORT:3306"
+    volumes:
+      - ./data/databank_se:/var/lib/mysql
+
+  databank-no:
+    container_name: databank-no
+    image: mariadb:10
+    env_file:
+      - .env
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${DATA_BANK_NO_NAME}
+      - MYSQL_USER=${DATA_BANK_NO_USER}
+      - MYSQL_PASSWORD=${DATA_BANK_NO_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=adminroot
+    ports:
+      - "$DATA_BANK_NO_PORT:3306"
+    volumes:
+      - ./data/databank_no:/var/lib/mysql      
+  
