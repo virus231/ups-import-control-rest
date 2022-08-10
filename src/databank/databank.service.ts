@@ -111,7 +111,6 @@ export class DatabankService {
     );
     const result = await this.findInDB(department, uniqueAccountNumbers);
 
-    console.log(uniqueAccountNumbers);
     // if not exist in database
     if (result.isNotApproved.length > 0) {
       return {
@@ -136,7 +135,7 @@ export class DatabankService {
           Authorization: `Bearer ${process.env.DROPBOX_TOKEN}`,
           'Content-Type': 'application/octet-stream',
           'Dropbox-API-Arg': JSON.stringify({
-            path: `/${options.dropbox_folder}/` + file.originalname,
+            path: `${options.dropbox_folder}/` + file.originalname,
             mode: 'overwrite',
             autorename: true,
             mute: false,
