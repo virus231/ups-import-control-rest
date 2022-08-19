@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import {
-  InjectConnection,
-  InjectDataSource,
   InjectRepository,
 } from '@nestjs/typeorm';
 import { createReadStream, readFileSync } from 'fs';
@@ -10,7 +8,6 @@ import { parse } from 'papaparse';
 import axios from 'axios';
 import { Databank } from './entities/databank.entity';
 import { DATABASE } from 'src/app.types';
-// import {DepartmentDto} from "./dto/create-databank.dto";
 
 @Injectable()
 export class DatabankService {
@@ -23,6 +20,8 @@ export class DatabankService {
     private readonly databankNORepository: Repository<Databank>,
     @InjectRepository(Databank, DATABASE.DATABANK_US)
     private readonly databankUSRepository: Repository<Databank>,
+    @InjectRepository(Databank, DATABASE.DATABANK_SE_BF)
+    private readonly databankSEBFRepository: Repository<Databank>,
   ) {}
 
   // async findAll() {
@@ -88,6 +87,22 @@ export class DatabankService {
         for (const uniqueAccountNumber of uniqueAccountNumbers) {
           // eslint-disable-next-line no-var
           var isExist = await this.databankUSRepository.findOne({
+            where: { account_nr: uniqueAccountNumber },
+          });
+
+          // if not exist in database
+          if (!isExist) {
+            isNotApproved.push(uniqueAccountNumber);
+          }
+        }
+        return {
+          isNotApproved,
+          isExist,
+        };
+      case 'SE_BF':
+        for (const uniqueAccountNumber of uniqueAccountNumbers) {
+          // eslint-disable-next-line no-var
+          var isExist = await this.databankSEBFRepository.findOne({
             where: { account_nr: uniqueAccountNumber },
           });
 

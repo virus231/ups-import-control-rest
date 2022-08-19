@@ -12,6 +12,7 @@ import { Databank } from './entities/databank.entity';
     TypeOrmModule.forFeature([Databank], DATABASE.DATABANK_SE),
     TypeOrmModule.forFeature([Databank], DATABASE.DATABANK_NO),
     TypeOrmModule.forFeature([Databank], DATABASE.DATABANK_US),
+    TypeOrmModule.forFeature([Databank], DATABASE.DATABANK_SE_BF),
     MulterModule.register({
       dest: './uploads',
     }),

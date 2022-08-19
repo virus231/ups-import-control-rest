@@ -41,6 +41,12 @@ import { Databank } from './databank/entities/databank.entity';
         DATA_BANK_US_NAME: Joi.string().required(),
         DATA_BANK_US_USER: Joi.string().required(),
         DATA_BANK_US_PASSWORD: Joi.string().required(),
+
+        DATA_BANK_SE_BF_PORT: Joi.number().required(),
+        DATA_BANK_SE_BF_HOST: Joi.string().required(),
+        DATA_BANK_SE_BF_NAME: Joi.string().required(),
+        DATA_BANK_SE_BF_USER: Joi.string().required(),
+        DATA_BANK_SE_BF_PASSWORD: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRootAsync({
@@ -59,7 +65,7 @@ import { Databank } from './databank/entities/databank.entity';
           logging: 'all',
           // migrations: [path.resolve(process.cwd(), 'dist/migrations/*.js')],
           migrationsRun: false,
-          synchronize: true,
+          synchronize: false,
           entities: [Databank],
           autoLoadEntities: true,
         };
@@ -81,7 +87,7 @@ import { Databank } from './databank/entities/databank.entity';
           logging: 'all',
           // migrations: [path.resolve(process.cwd(), 'dist/migrations/*.js')],
           migrationsRun: false,
-          synchronize: true,
+          synchronize: false,
           entities: [Databank],
           autoLoadEntities: true,
         };
@@ -103,7 +109,7 @@ import { Databank } from './databank/entities/databank.entity';
           logging: 'all',
           // migrations: [path.resolve(process.cwd(), 'dist/migrations/*.js')],
           migrationsRun: false,
-          synchronize: true,
+          synchronize: false,
           entities: [Databank],
           autoLoadEntities: true,
         };
@@ -125,7 +131,29 @@ import { Databank } from './databank/entities/databank.entity';
           logging: 'all',
           // migrations: [path.resolve(process.cwd(), 'dist/migrations/*.js')],
           migrationsRun: false,
-          synchronize: true,
+          synchronize: false,
+          entities: [Databank],
+          autoLoadEntities: true,
+        };
+      },
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      name: DATABASE.DATABANK_SE_BF,
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<IEnv>) => {
+        return {
+          name: DATABASE.DATABANK_SE_BF,
+          type: 'mariadb',
+          host: config.get('DATA_BANK_SE_BF_HOST'),
+          port: config.get('DATA_BANK_SE_BF_PORT'),
+          username: config.get('DATA_BANK_SE_BF_USER'),
+          password: config.get('DATA_BANK_SE_BF_PASSWORD'),
+          database: config.get('DATA_BANK_SE_BF_NAME'),
+          logging: 'all',
+          // migrations: [path.resolve(process.cwd(), 'dist/migrations/*.js')],
+          migrationsRun: false,
+          synchronize: false,
           entities: [Databank],
           autoLoadEntities: true,
         };

@@ -30,6 +30,12 @@ export interface IEnv {
   DATA_BANK_US_USER: string;
   DATA_BANK_US_PASSWORD: string;
   DATA_BANK_US_NAME: string;
+
+  DATA_BANK_SE_BF_HOST: string;
+  DATA_BANK_SE_BF_PORT: number;
+  DATA_BANK_SE_BF_USER: string;
+  DATA_BANK_SE_BF_PASSWORD: string;
+  DATA_BANK_SE_BF_NAME: string;
 }
 
 export enum DATABASE {
@@ -37,4 +43,5 @@ export enum DATABASE {
   DATABANK_SE = 'databank_se',
   DATABANK_NO = 'databank_no',
   DATABANK_US = 'databank_us',
+  DATABANK_SE_BF = 'databank_se_bf',
 }
