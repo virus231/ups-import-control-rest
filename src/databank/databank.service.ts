@@ -223,11 +223,8 @@ export class DatabankService {
     isMarkupObj: { [p: string]: boolean },
   ) {
     const { isExist, isNotApprovedAccountNumbers } = result;
-    let isError;
     const arrIsDifferentAccNumber = [];
     const arrIsMissingAccNumber = [];
-
-    // console.log(isExist);
 
     if (isNotApprovedAccountNumbers.length > 0) {
       return {
@@ -253,12 +250,12 @@ export class DatabankService {
         objDatabank.check_markup == 1 &&
         !isMarkupObj[objDatabank.account_nr]
       ) {
-        isError = false;
+        await this.toDropBox(file, objDatabank);
       } else if (
         objDatabank.check_markup == 0 &&
         isMarkupObj[objDatabank.account_nr]
       ) {
-        isError = false;
+        await this.toDropBox(file, objDatabank);
       }
     }
 
