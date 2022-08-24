@@ -8,7 +8,6 @@ import { Databank } from './entities/databank.entity';
 import { DATABASE } from 'src/app.types';
 import { DEPARTMENT_CODE } from './types';
 
-
 @Injectable()
 export class DatabankService {
   constructor(
@@ -122,7 +121,7 @@ export class DatabankService {
       dataFile,
     );
     const result = await this.findInDB(department, uniqueAccountNumbers);
-    const isMarkupObj = await this.getMarkup(dataFile);
+    const isMarkupObj = await this.getMarkupObj(dataFile);
     return await this.isCheckApproved(
       result,
       file,
@@ -194,7 +193,7 @@ export class DatabankService {
     );
   }
 
-  async getMarkup(dataFile: any[][]) {
+  async getMarkupObj(dataFile: any[][]) {
     const obj: { [p: string]: boolean } = {};
     let netAmount = 0;
     const uniqueAccountNumbersWithInvoiceAmount = await this.getInvoiceTotal(
@@ -229,7 +228,7 @@ export class DatabankService {
     if (isNotApprovedAccountNumbers.length > 0) {
       return {
         status: `error`,
-        message: `Account numbers ${result.isNotApprovedAccountNumbers} is not approved`,
+        message: `Account numbers ${isNotApprovedAccountNumbers} is not approved`,
       };
     }
 
