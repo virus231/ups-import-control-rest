@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import {
-  InjectRepository,
-} from '@nestjs/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { createReadStream, readFileSync } from 'fs';
 import { In, Repository } from 'typeorm';
 import { parse } from 'papaparse';
 import axios from 'axios';
 import { Databank } from './entities/databank.entity';
 import { DATABASE } from 'src/app.types';
+import { DEPARTMENT_CODE } from './types';
+
 
 @Injectable()
 export class DatabankService {
@@ -24,121 +24,111 @@ export class DatabankService {
     private readonly databankSEBFRepository: Repository<Databank>,
   ) {}
 
-  // async findAll() {
-  //   return this.databankSERepository.findAndCount();
-  // }
-
-  async findInDB(department: string, uniqueAccountNumbers: string[]) {
-    const isNotApproved = [];
+  async findInDB(department: DEPARTMENT_CODE, uniqueAccountNumbers: string[]) {
+    const isNotApprovedAccountNumbers = [];
 
     switch (department) {
-      case 'DK':
-        for (const uniqueAccountNumber of uniqueAccountNumbers) {
-          // eslint-disable-next-line no-var
-          var isExist = await this.databankDKRepository.findOne({
-            where: { account_nr: uniqueAccountNumber },
-          });
+      case DEPARTMENT_CODE.DK:
+        const isExistDK = await this.databankDKRepository.find({
+          where: {
+            account_nr: In(uniqueAccountNumbers),
+          },
+        });
 
-          // if not exist in database
-          if (!isExist) {
-            isNotApproved.push(uniqueAccountNumber);
+        for (const accountNumber of uniqueAccountNumbers) {
+          const isAccountNumber = isExistDK.find(
+            (item) => item.account_nr === accountNumber,
+          );
+          if (!isAccountNumber) {
+            isNotApprovedAccountNumbers.push(accountNumber);
           }
         }
-        return {
-          isNotApproved,
-          isExist,
-        };
+        return { isExist: isExistDK, isNotApprovedAccountNumbers };
         break;
-      case 'SE':
-        for (const uniqueAccountNumber of uniqueAccountNumbers) {
-          // eslint-disable-next-line no-var
-          var isExist = await this.databankSERepository.findOne({
-            where: { account_nr: uniqueAccountNumber },
-          });
+      case DEPARTMENT_CODE.SE:
+        const isExistSE = await this.databankSERepository.find({
+          where: {
+            account_nr: In(uniqueAccountNumbers),
+          },
+        });
 
-          // if not exist in database
-          if (!isExist) {
-            isNotApproved.push(uniqueAccountNumber);
+        for (const accountNumber of uniqueAccountNumbers) {
+          const isAccountNumber = isExistSE.find(
+            (item) => item.account_nr === accountNumber,
+          );
+          if (!isAccountNumber) {
+            isNotApprovedAccountNumbers.push(accountNumber);
           }
         }
-        return {
-          isNotApproved,
-          isExist,
-        };
+        return { isExist: isExistSE, isNotApprovedAccountNumbers };
         break;
-      case 'NO':
-        for (const uniqueAccountNumber of uniqueAccountNumbers) {
-          // eslint-disable-next-line no-var
-          var isExist = await this.databankNORepository.findOne({
-            where: { account_nr: uniqueAccountNumber },
-          });
-
-          // if not exist in database
-          if (!isExist) {
-            isNotApproved.push(uniqueAccountNumber);
+      case DEPARTMENT_CODE.NO:
+        const isExistNO = await this.databankNORepository.find({
+          where: {
+            account_nr: In(uniqueAccountNumbers),
+          },
+        });
+        for (const accountNumber of uniqueAccountNumbers) {
+          const isAccountNumber = isExistNO.find(
+            (item) => item.account_nr === accountNumber,
+          );
+          if (!isAccountNumber) {
+            isNotApprovedAccountNumbers.push(accountNumber);
           }
         }
-        return {
-          isNotApproved,
-          isExist,
-        };
+        return { isExist: isExistNO, isNotApprovedAccountNumbers };
         break;
-      case 'US':
-        for (const uniqueAccountNumber of uniqueAccountNumbers) {
-          // eslint-disable-next-line no-var
-          var isExist = await this.databankUSRepository.findOne({
-            where: { account_nr: uniqueAccountNumber },
-          });
-
-          // if not exist in database
-          if (!isExist) {
-            isNotApproved.push(uniqueAccountNumber);
+      case DEPARTMENT_CODE.US:
+        const isExistUS = await this.databankUSRepository.find({
+          where: {
+            account_nr: In(uniqueAccountNumbers),
+          },
+        });
+        for (const accountNumber of uniqueAccountNumbers) {
+          const isAccountNumber = isExistUS.find(
+            (item) => item.account_nr === accountNumber,
+          );
+          if (!isAccountNumber) {
+            isNotApprovedAccountNumbers.push(accountNumber);
           }
         }
-        return {
-          isNotApproved,
-          isExist,
-        };
-      case 'SE_BF':
-        for (const uniqueAccountNumber of uniqueAccountNumbers) {
-          // eslint-disable-next-line no-var
-          var isExist = await this.databankSEBFRepository.findOne({
-            where: { account_nr: uniqueAccountNumber },
-          });
-
-          // if not exist in database
-          if (!isExist) {
-            isNotApproved.push(uniqueAccountNumber);
+        return { isExist: isExistUS, isNotApprovedAccountNumbers };
+      case DEPARTMENT_CODE.SE_BF:
+        const isExistSEBF = await this.databankSEBFRepository.find({
+          where: {
+            account_nr: In(uniqueAccountNumbers),
+          },
+        });
+        for (const accountNumber of uniqueAccountNumbers) {
+          const isAccountNumber = isExistSEBF.find(
+            (item) => item.account_nr === accountNumber,
+          );
+          if (!isAccountNumber) {
+            isNotApprovedAccountNumbers.push(accountNumber);
           }
         }
-        return {
-          isNotApproved,
-          isExist,
-        };
+        return { isExist: isExistSEBF, isNotApprovedAccountNumbers };
+
         break;
     }
   }
 
-  async uploadFileToDropBox(department: string, file: Express.Multer.File) {
-    const accountNumbers = await this.readCSVFile(file);
-    const uniqueAccountNumbers = await this.checkUniqueAccountNumbers(
-      accountNumbers,
+  async uploadFileToDropBox(
+    department: DEPARTMENT_CODE,
+    file: Express.Multer.File,
+  ) {
+    const dataFile = await this.readCSVFile(file);
+    const uniqueAccountNumbers = await this.getUniqueAccountNumbersInFile(
+      dataFile,
     );
     const result = await this.findInDB(department, uniqueAccountNumbers);
-
-    // if not exist in database
-    if (result.isNotApproved.length > 0) {
-      return {
-        status: `error`,
-        message: `Account numbers ${result.isNotApproved} is not approved`,
-      };
-    } else {
-      await this.toDropBox(file, result.isExist);
-      return {
-        status: `success`,
-        message: `Account numbers ${uniqueAccountNumbers} is approved`,
-      };
-    }
+    const isMarkupObj = await this.getMarkup(dataFile);
+    return await this.isCheckApproved(
+      result,
+      file,
+      uniqueAccountNumbers,
+      isMarkupObj,
+    );
   }
 
   async toDropBox(file: Express.Multer.File, options: Databank) {
@@ -185,22 +175,128 @@ export class DatabankService {
       complete: (results) => results.data,
     });
 
-    const accountNumbers = parsedCsv.data;
-
-    return accountNumbers;
+    return parsedCsv.data;
   }
 
-  async checkUniqueAccountNumbers(accountNumbers: string[]): Promise<string[]> {
+  async getUniqueAccountNumbersInFile(dataFile: any[][]) {
     const uniqueAccountNumbers = [];
-    for (const accountNumber of accountNumbers) {
-      const isDuplicate = uniqueAccountNumbers.includes(accountNumber[1]);
+
+    for (const row of dataFile) {
+      const isDuplicate = uniqueAccountNumbers.includes(row[1]);
 
       if (!isDuplicate) {
-        uniqueAccountNumbers.push(accountNumber[1]);
+        uniqueAccountNumbers.push(row[1]);
       }
     }
+
     return uniqueAccountNumbers.map((accountNumber: string) =>
       accountNumber.slice(4),
     );
+  }
+
+  async getMarkup(dataFile: any[][]) {
+    const obj: { [p: string]: boolean } = {};
+    let netAmount = 0;
+    const uniqueAccountNumbersWithInvoiceAmount = await this.getInvoiceTotal(
+      dataFile,
+    );
+
+    for (let i = 0; i < dataFile.length; i++) {
+      netAmount += Number(dataFile[i][52]);
+    }
+
+    for (const item in uniqueAccountNumbersWithInvoiceAmount) {
+      const withoutZeros = item.replace(/^0+/, '');
+      if (uniqueAccountNumbersWithInvoiceAmount[item] == netAmount) {
+        obj[withoutZeros] = true;
+      } else {
+        obj[withoutZeros] = false;
+      }
+    }
+    return obj;
+  }
+
+  async isCheckApproved(
+    result: { isExist: Databank[]; isNotApprovedAccountNumbers: string[] },
+    file: Express.Multer.File,
+    uniqueAccountNumbers: string[],
+    isMarkupObj: { [p: string]: boolean },
+  ) {
+    const { isExist, isNotApprovedAccountNumbers } = result;
+    let isError;
+    const arrIsDifferentAccNumber = [];
+    const arrIsMissingAccNumber = [];
+
+    // console.log(isExist);
+
+    if (isNotApprovedAccountNumbers.length > 0) {
+      return {
+        status: `error`,
+        message: `Account numbers ${result.isNotApprovedAccountNumbers} is not approved`,
+      };
+    }
+
+    for (let i = 0; i < isExist.length; i++) {
+      const objDatabank = isExist[i];
+
+      if (
+        objDatabank.check_markup == 0 &&
+        !isMarkupObj[objDatabank.account_nr]
+      ) {
+        arrIsDifferentAccNumber.push(objDatabank.account_nr);
+      } else if (
+        objDatabank.check_markup == 1 &&
+        isMarkupObj[objDatabank.account_nr]
+      ) {
+        arrIsMissingAccNumber.push(objDatabank.account_nr);
+      } else if (
+        objDatabank.check_markup == 1 &&
+        !isMarkupObj[objDatabank.account_nr]
+      ) {
+        isError = false;
+      } else if (
+        objDatabank.check_markup == 0 &&
+        isMarkupObj[objDatabank.account_nr]
+      ) {
+        isError = false;
+      }
+    }
+
+    return arrIsDifferentAccNumber.length > 0 &&
+      arrIsMissingAccNumber.length > 0
+      ? {
+          status: `error`,
+          message: `Account numbers ${uniqueAccountNumbers} is not approved. Invoice amount and net amount are different in ${arrIsDifferentAccNumber.toString()} and Markup is missing in ${arrIsMissingAccNumber.toString()}`,
+        }
+      : arrIsDifferentAccNumber.length > 0
+      ? {
+          status: `error`,
+          message: `Account numbers ${uniqueAccountNumbers} is not approved. Invoice amount and net amount are different in ${arrIsDifferentAccNumber.toString()}`,
+        }
+      : arrIsMissingAccNumber.length > 0
+      ? {
+          status: `error`,
+          message: `Account numbers ${uniqueAccountNumbers} is not approved. Markup is missing in ${arrIsMissingAccNumber.toString()}`,
+        }
+      : {
+          status: `success`,
+          message: `Account numbers ${uniqueAccountNumbers} is approved.`,
+        };
+  }
+
+  async getInvoiceTotal(dataFile: any[][]) {
+    const uniqueAccountNumbersWithInvoiceAmount = {};
+
+    for (const row of dataFile) {
+      const isDuplicate = uniqueAccountNumbersWithInvoiceAmount.hasOwnProperty(
+        row[1],
+      );
+
+      if (!isDuplicate) {
+        uniqueAccountNumbersWithInvoiceAmount[row[1]] = row[10];
+      }
+    }
+
+    return uniqueAccountNumbersWithInvoiceAmount;
   }
 }

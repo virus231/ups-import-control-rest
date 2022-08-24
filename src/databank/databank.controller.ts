@@ -32,7 +32,6 @@ export class DatabankController {
     }),
   )
   async uploadFile(@Req() db, @UploadedFile() file: Express.Multer.File) {
-    console.log(db.body.department);
     return await this.databankService.uploadFileToDropBox(
       db.body.department,
       file,
