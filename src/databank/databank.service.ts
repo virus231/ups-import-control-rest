@@ -232,9 +232,11 @@ export class DatabankService {
       };
     }
 
-    for (let i = 0; i < isExist.length; i++) {
-      const objDatabank = isExist[i];
-
+    for (const objDatabank of isExist) {
+      const isSuccess =
+        (objDatabank.check_markup == 1 &&
+          !isMarkupObj[objDatabank.account_nr]) ||
+        (objDatabank.check_markup == 0 && isMarkupObj[objDatabank.account_nr]);
       if (
         objDatabank.check_markup == 0 &&
         !isMarkupObj[objDatabank.account_nr]
@@ -245,15 +247,7 @@ export class DatabankService {
         isMarkupObj[objDatabank.account_nr]
       ) {
         arrIsMissingAccNumber.push(objDatabank.account_nr);
-      } else if (
-        objDatabank.check_markup == 1 &&
-        !isMarkupObj[objDatabank.account_nr]
-      ) {
-        await this.toDropBox(file, objDatabank);
-      } else if (
-        objDatabank.check_markup == 0 &&
-        isMarkupObj[objDatabank.account_nr]
-      ) {
+      } else if (isSuccess) {
         await this.toDropBox(file, objDatabank);
       }
     }
