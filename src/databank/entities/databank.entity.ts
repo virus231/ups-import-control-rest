@@ -1,11 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, Column, PrimaryColumn } from "typeorm";
 
 @Entity({ name: 'import_control' })
 export class Databank {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+  @PrimaryColumn()
   account_nr: string;
 
   @Column()

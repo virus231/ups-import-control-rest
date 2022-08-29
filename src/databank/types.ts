@@ -7,4 +7,3 @@ export enum DEPARTMENT_CODE {
   US = 'US',
   SE_BF = 'SE_BF',
 }
-

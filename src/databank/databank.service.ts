@@ -222,8 +222,8 @@ export class DatabankService {
     isMarkupObj: { [p: string]: boolean },
   ) {
     const { isExist, isNotApprovedAccountNumbers } = result;
-    const arrIsDifferentAccNumber = [];
-    const arrIsMissingAccNumber = [];
+    const differentNumbers = [];
+    const missingNumbers = [];
 
     if (isNotApprovedAccountNumbers.length > 0) {
       return {
@@ -241,32 +241,31 @@ export class DatabankService {
         objDatabank.check_markup == 0 &&
         !isMarkupObj[objDatabank.account_nr]
       ) {
-        arrIsDifferentAccNumber.push(objDatabank.account_nr);
+        differentNumbers.push(objDatabank.account_nr);
       } else if (
         objDatabank.check_markup == 1 &&
         isMarkupObj[objDatabank.account_nr]
       ) {
-        arrIsMissingAccNumber.push(objDatabank.account_nr);
+        missingNumbers.push(objDatabank.account_nr);
       } else if (isSuccess) {
         await this.toDropBox(file, objDatabank);
       }
     }
 
-    return arrIsDifferentAccNumber.length > 0 &&
-      arrIsMissingAccNumber.length > 0
+    return differentNumbers.length > 0 && missingNumbers.length > 0
       ? {
           status: `error`,
-          message: `Account numbers ${uniqueAccountNumbers} is not approved. Invoice amount and net amount are different in ${arrIsDifferentAccNumber.toString()} and Markup is missing in ${arrIsMissingAccNumber.toString()}`,
+          message: `Account numbers ${uniqueAccountNumbers} is not approved. Invoice amount and net amount are different in ${differentNumbers.toString()} and Markup is missing in ${missingNumbers.toString()}`,
         }
-      : arrIsDifferentAccNumber.length > 0
+      : differentNumbers.length > 0
       ? {
           status: `error`,
-          message: `Account numbers ${uniqueAccountNumbers} is not approved. Invoice amount and net amount are different in ${arrIsDifferentAccNumber.toString()}`,
+          message: `Account numbers ${uniqueAccountNumbers} is not approved. Invoice amount and net amount are different in ${differentNumbers.toString()}`,
         }
-      : arrIsMissingAccNumber.length > 0
+      : missingNumbers.length > 0
       ? {
           status: `error`,
-          message: `Account numbers ${uniqueAccountNumbers} is not approved. Markup is missing in ${arrIsMissingAccNumber.toString()}`,
+          message: `Account numbers ${uniqueAccountNumbers} is not approved. Markup is missing in ${missingNumbers.toString()}`,
         }
       : {
           status: `success`,
