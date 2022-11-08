@@ -234,18 +234,11 @@ export class DatabankService {
 
     for (const objDatabank of isExist) {
       const isSuccess =
-        (objDatabank.check_markup == 1 &&
-          !isMarkupObj[objDatabank.account_nr]) ||
-        (objDatabank.check_markup == 0 && isMarkupObj[objDatabank.account_nr]);
-      if (
-        objDatabank.check_markup == 0 &&
-        !isMarkupObj[objDatabank.account_nr]
-      ) {
+        !isMarkupObj[objDatabank.account_nr] ||
+        isMarkupObj[objDatabank.account_nr];
+      if (!isMarkupObj[objDatabank.account_nr]) {
         differentNumbers.push(objDatabank.account_nr);
-      } else if (
-        objDatabank.check_markup == 1 &&
-        isMarkupObj[objDatabank.account_nr]
-      ) {
+      } else if (isMarkupObj[objDatabank.account_nr]) {
         missingNumbers.push(objDatabank.account_nr);
       } else if (isSuccess) {
         await this.toDropBox(file, objDatabank);
