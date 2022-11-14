@@ -121,13 +121,7 @@ export class DatabankService {
       dataFile,
     );
     const result = await this.findInDB(department, uniqueAccountNumbers);
-    const isMarkupObj = await this.getMarkupObj(dataFile);
-    return await this.isCheckApproved(
-      result,
-      file,
-      uniqueAccountNumbers,
-      isMarkupObj,
-    );
+    return await this.isCheckApproved(result, file, uniqueAccountNumbers);
   }
 
   async toDropBox(file: Express.Multer.File, options: Databank) {
@@ -153,7 +147,6 @@ export class DatabankService {
         message: `File ${file.originalname} is uploaded to dropbox`,
       };
     } catch (err) {
-      console.log('err', err);
       return {
         status: `error`,
         message: `${err}`,
@@ -193,37 +186,12 @@ export class DatabankService {
     );
   }
 
-  async getMarkupObj(dataFile: any[][]) {
-    const obj: { [p: string]: boolean } = {};
-    let netAmount = 0;
-    const uniqueAccountNumbersWithInvoiceAmount = await this.getInvoiceTotal(
-      dataFile,
-    );
-
-    for (let i = 0; i < dataFile.length; i++) {
-      netAmount += Number(dataFile[i][52]);
-    }
-
-    for (const item in uniqueAccountNumbersWithInvoiceAmount) {
-      const withoutZeros = item.replace(/^0+/, '');
-      if (uniqueAccountNumbersWithInvoiceAmount[item] == netAmount) {
-        obj[withoutZeros] = true;
-      } else {
-        obj[withoutZeros] = false;
-      }
-    }
-    return obj;
-  }
-
   async isCheckApproved(
     result: { isExist: Databank[]; isNotApprovedAccountNumbers: string[] },
     file: Express.Multer.File,
     uniqueAccountNumbers: string[],
-    isMarkupObj: { [p: string]: boolean },
   ) {
     const { isExist, isNotApprovedAccountNumbers } = result;
-    const differentNumbers = [];
-    const missingNumbers = [];
 
     if (isNotApprovedAccountNumbers.length > 0) {
       return {
@@ -233,52 +201,12 @@ export class DatabankService {
     }
 
     for (const objDatabank of isExist) {
-      const isSuccess =
-        !isMarkupObj[objDatabank.account_nr] ||
-        isMarkupObj[objDatabank.account_nr];
-      if (!isMarkupObj[objDatabank.account_nr]) {
-        differentNumbers.push(objDatabank.account_nr);
-      } else if (isMarkupObj[objDatabank.account_nr]) {
-        missingNumbers.push(objDatabank.account_nr);
-      } else if (isSuccess) {
-        await this.toDropBox(file, objDatabank);
-      }
+      await this.toDropBox(file, objDatabank);
     }
 
-    return differentNumbers.length > 0 && missingNumbers.length > 0
-      ? {
-          status: `error`,
-          message: `Account numbers ${uniqueAccountNumbers} is not approved. Invoice amount and net amount are different in ${differentNumbers.toString()} and Markup is missing in ${missingNumbers.toString()}`,
-        }
-      : differentNumbers.length > 0
-      ? {
-          status: `error`,
-          message: `Account numbers ${uniqueAccountNumbers} is not approved. Invoice amount and net amount are different in ${differentNumbers.toString()}`,
-        }
-      : missingNumbers.length > 0
-      ? {
-          status: `error`,
-          message: `Account numbers ${uniqueAccountNumbers} is not approved. Markup is missing in ${missingNumbers.toString()}`,
-        }
-      : {
-          status: `success`,
-          message: `Account numbers ${uniqueAccountNumbers} is approved.`,
-        };
-  }
-
-  async getInvoiceTotal(dataFile: any[][]) {
-    const uniqueAccountNumbersWithInvoiceAmount = {};
-
-    for (const row of dataFile) {
-      const isDuplicate = uniqueAccountNumbersWithInvoiceAmount.hasOwnProperty(
-        row[1],
-      );
-
-      if (!isDuplicate) {
-        uniqueAccountNumbersWithInvoiceAmount[row[1]] = row[10];
-      }
-    }
-
-    return uniqueAccountNumbersWithInvoiceAmount;
+    return {
+      status: `success`,
+      message: `Account numbers ${uniqueAccountNumbers} is approved.`,
+    };
   }
 }

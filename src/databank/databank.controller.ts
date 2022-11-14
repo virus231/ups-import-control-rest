@@ -1,18 +1,12 @@
 import {
   Controller,
-  Get,
   Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
   UploadedFile,
   UseInterceptors,
   Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DatabankService } from './databank.service';
-// import { DepartmentDto } from './dto/create-databank.dto';
 import { diskStorage } from 'multer';
 
 @Controller('databank')
